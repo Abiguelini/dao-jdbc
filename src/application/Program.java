@@ -15,12 +15,18 @@ public class Program {
 
 		Seller seller = sellerDao.findById(3);
 		System.out.println(seller);
-		
+
 		System.out.println("=====TESTE 2 ======");
 		Department department = new Department(2, null);
-		List <Seller> list = sellerDao.findByDepartment(department);		
+		List<Seller> list = sellerDao.findByDepartment(department);
 		for (Seller sell : list) {
-				System.out.println(sell);
+			System.out.println(sell);
+		}
+
+		System.out.println("=====TESTE 3 ======");
+		list = sellerDao.findAll();
+		for (Seller sell : list) {
+			System.out.println(sell);
 		}
 	}
 

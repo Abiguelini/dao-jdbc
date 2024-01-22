@@ -3,6 +3,7 @@ package mode.dao;
 import java.util.List;
 
 import db.model.Department;
+import db.model.Seller;
 
 public interface DepartmentDao {
 	void insert(Department obj);
@@ -13,6 +14,8 @@ public interface DepartmentDao {
 
 	Department findById(Integer id);
 
-	List<Department> findAll();
+	List<Seller> findAll();
+
+	List<Seller> FindByDepartment(Department Department);
 
 }

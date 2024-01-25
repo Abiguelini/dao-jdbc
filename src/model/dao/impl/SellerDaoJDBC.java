@@ -1,7 +1,6 @@
 package model.dao.impl;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import db.DB;
 import db.DbException;
 import db.model.Department;
@@ -27,53 +25,82 @@ public class SellerDaoJDBC implements SellerDao {
 	@Override
 	public void insert(Seller obj) {
 		PreparedStatement Ps = null;
-		try{
-			Ps = conn.prepareStatement("INSERT INTO seller "
-					+ "(Name, Email, BirthDate, BaseSalary, DepartmentId) "
-					+ "VALUES "
-					+ "(?, ?, ?, ?, ?)",
-					Statement.RETURN_GENERATED_KEYS);
-					
-					Ps.setString(1, obj.getName());
-					Ps.setString(2, obj.getEmail());
-					Ps.setDate(3, new Date(obj.getDateBirthday().getTime()));
-					Ps.setDouble(4, obj.getSalaryBase());
-					Ps.setInt(5, obj.getDepartment().getId());
-					
-					
-					int linhasAfetadas = Ps.executeUpdate();
-					
-					if(linhasAfetadas>0) {
-						ResultSet Rt = Ps.getGeneratedKeys();
-						if(Rt.next()) {
-							int id = Rt.getInt(1);
-							obj.setId(id);
-							DB.closeResultSet(Rt);
-						}
-					}else {
-						throw new DbException("Erros!! Nenhuma linha afetada");
-					}
-					
-			
-		}catch(SQLException e) {
+		try {
+			Ps = conn.prepareStatement("INSERT INTO seller " + "(Name, Email, BirthDate, BaseSalary, DepartmentId) "
+					+ "VALUES " + "(?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+
+			Ps.setString(1, obj.getName());
+			Ps.setString(2, obj.getEmail());
+			if (obj.getBirthDate() == null) {
+				throw new DbException("A data de nascimento não pode ser nula durante uma atualização2.");
+			}
+			Ps.setDate(3, new java.sql.Date(obj.getBirthDate().getTime()));
+			Ps.setDouble(4, obj.getBaseSalary());
+			Ps.setInt(5, obj.getDepartment().getId());
+
+			int linhasAfetadas = Ps.executeUpdate();
+
+			if (linhasAfetadas > 0) {
+				ResultSet Rt = Ps.getGeneratedKeys();
+				if (Rt.next()) {
+					int id = Rt.getInt(1);
+					obj.setId(id);
+					DB.closeResultSet(Rt);
+				}
+			} else {
+				throw new DbException("Erros!! Nenhuma linha afetada");
+			}
+
+		} catch (SQLException e) {
 			throw new DbException(e.getMessage());
-		}finally {
+		} finally {
 			DB.closeStatement(Ps);
-			
+
 		}
 
 	}
 
+	
 	@Override
 	public void update(Seller obj) {
-		// TODO Auto-generated method stub
+		PreparedStatement st = null;
+		try {
+			st = conn.prepareStatement("UPDATE seller "
+					+ "SET Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?, DepartmentId = ? " + "WHERE Id = ?");
 
+			st.setString(1, obj.getName());
+			st.setString(2, obj.getEmail());
+			if (obj.getBirthDate() == null) {
+				throw new DbException("A data de nascimento não pode ser nula durante uma atualização.");
+			}
+			st.setDate(3, new java.sql.Date(obj.getBirthDate().getTime()));
+			st.setDouble(4, obj.getBaseSalary());
+			st.setInt(5, obj.getDepartment().getId());
+			st.setInt(6, obj.getId());
+
+			st.executeUpdate();
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		} finally {
+			DB.closeStatement(st);
+		}
 	}
 
 	@Override
 	public void deleteById(Integer id) {
-		// TODO Auto-generated method stub
 
+		PreparedStatement Ps = null;
+		try {
+			Ps = conn.prepareStatement("DELETE FROM seller WHERE Id = ?");
+
+			Ps.setInt(1, id);
+
+			Ps.executeUpdate();
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		} finally {
+			DB.closeStatement(Ps);
+		}
 	}
 
 	@Override
@@ -94,7 +121,7 @@ public class SellerDaoJDBC implements SellerDao {
 				return seller;
 			}
 			return null;
-		} catch (SQLException e) {
+		}catch (SQLException e) {
 			throw new DbException(e.getMessage());
 		}
 
@@ -109,8 +136,9 @@ public class SellerDaoJDBC implements SellerDao {
 		Seller seller = new Seller();
 		seller.setId(Rs.getInt("Id"));
 		seller.setName(Rs.getString("Name"));
-		seller.setEmail(Rs.getString("email"));
-		seller.setSalaryBase(Rs.getDouble("BaseSalary"));
+		seller.setEmail(Rs.getString("Email"));
+		seller.setBaseSalary(Rs.getDouble("BaseSalary"));
+		seller.setBirthDate(Rs.getDate("BirthDate"));
 		seller.setDepartment(dp);
 		return seller;
 	}

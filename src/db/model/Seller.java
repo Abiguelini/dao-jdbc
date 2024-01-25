@@ -2,33 +2,28 @@ package db.model;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Objects;
 
 public class Seller implements Serializable {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
+
 	private Integer id;
 	private String name;
 	private String email;
-	private Date dateBirthday;
-	private Double salaryBase;
-
+	private Date birthDate;
+	private Double baseSalary;
+	
 	private Department department;
 	
-	
 	public Seller() {
-		
 	}
 
-	public Seller(Integer id, String name, String email, Date dateBirthday, Double salaryBase, Department department) {
-
+	public Seller(Integer id, String name, String email, Date birthDate, Double baseSalary, Department department) {
 		this.id = id;
 		this.name = name;
 		this.email = email;
-		this.dateBirthday = dateBirthday;
-		this.salaryBase = salaryBase;
+		this.birthDate = birthDate;
+		this.baseSalary = baseSalary;
 		this.department = department;
 	}
 
@@ -56,20 +51,20 @@ public class Seller implements Serializable {
 		this.email = email;
 	}
 
-	public Date getDateBirthday() {
-		return dateBirthday;
+	public Date getBirthDate() {
+		return birthDate;
 	}
 
-	public void setDateBirthday(Date dateBirthday) {
-		this.dateBirthday = dateBirthday;
+	public void setBirthDate(Date birthDate) {
+		this.birthDate = birthDate;
 	}
 
-	public Double getSalaryBase() {
-		return salaryBase;
+	public Double getBaseSalary() {
+		return baseSalary;
 	}
 
-	public void setSalaryBase(Double salaryBase) {
-		this.salaryBase = salaryBase;
+	public void setBaseSalary(Double baseSalary) {
+		this.baseSalary = baseSalary;
 	}
 
 	public Department getDepartment() {
@@ -82,7 +77,10 @@ public class Seller implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id);
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
 	}
 
 	@Override
@@ -94,13 +92,17 @@ public class Seller implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Seller other = (Seller) obj;
-		return Objects.equals(id, other.id);
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "Seller Id= " + id + ", Name= " + name + ", Email= " + email + ", DateBirthday= " + dateBirthday
-				+ ", Salary base= " + salaryBase + ", Department= " + department + "]";
+		return "Seller [id=" + id + ", name=" + name + ", email=" + email + ", birthDate=" + birthDate + ", baseSalary="
+				+ baseSalary + ", department=" + department + "]";
 	}
-	
 }

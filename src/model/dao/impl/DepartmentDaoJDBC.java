@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 import db.DB;
@@ -23,10 +25,22 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 	public void insert(Department obj) {
 		PreparedStatement Ps = null;
 		try {
-			Ps = conn.prepareStatement("INSERT INTO Department " + "(Id, Name) " + "VALUES " + "(?, ?");
+			Ps = conn.prepareStatement("INSERT INTO Department " + "(Id, Name) " + "VALUES " + "(?, ?)",
+					Statement.RETURN_GENERATED_KEYS);
 			Ps.setInt(1, obj.getId());
 			Ps.setString(2, obj.getName());
-			Ps.executeUpdate();
+			int linhasAfetadas = Ps.executeUpdate();
+
+			if (linhasAfetadas > 0) {
+				ResultSet rt = Ps.getGeneratedKeys();
+				if (rt.next()) {
+					int id = rt.getInt(1);
+					obj.setId(id);
+					DB.closeResultSet(rt);
+				} else {
+					throw new DbException("Nenhuma linha afetada");
+				}
+			}
 		} catch (SQLException e) {
 			throw new DbException("Erro ao inserir um novo departamento");
 		}
@@ -34,14 +48,32 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 
 	@Override
 	public void update(Department obj) {
-		// TODO Auto-generated method stub
+		PreparedStatement Ps = null;
+		try {
+			Ps = conn.prepareStatement("UPDATE department " + "SET Name = ? " + "WHERE Id = ?");
+			Ps.setString(1, obj.getName());
+			Ps.setInt(2, obj.getId());
 
+			Ps.executeUpdate();
+
+		} catch (SQLException e) {
+			e.getMessage();
+		}
 	}
 
 	@Override
 	public void deleteById(Integer id) {
-		// TODO Auto-generated method stub
+		PreparedStatement Ps = null;
+		try {
+			Ps = conn.prepareStatement("DELETE FROM department where Id = ?");
+			Ps.setInt(1, id);
+			Ps.executeUpdate();
 
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		} finally {
+			DB.closeStatement(Ps);
+		}
 	}
 
 	@Override
@@ -58,7 +90,6 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 				obj.setName(Rt.getString("Name"));
 				return obj;
 			}
-			
 
 		} catch (SQLException e) {
 			e.getStackTrace();
@@ -72,14 +103,36 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 	}
 
 	@Override
-	public List<Seller> findAll() {
-		// TODO Auto-generated method stub
+	public List<Department> findAll() {
+		PreparedStatement Ps = null;
+		ResultSet Rs = null;
+		try {
+			Ps = conn.prepareStatement("SELECT * FROM department ORDER BY Name");
+			Rs = Ps.executeQuery();
+			List<Department> lista = new ArrayList<>();
+			
+			while(Rs.next()) {
+				Department obj = new Department();
+				obj.setId(Rs.getInt("Id"));
+				obj.setName(Rs.getString("Name"));
+				lista.add(obj);
+				
+			}
+			return lista;
+			
+
+		} catch (SQLException e) {
+			e.getMessage();
+		}finally {
+			DB.closeStatement(Ps);
+			DB.closeResultSet(Rs);
+		}
 		return null;
+		
 	}
 
 	@Override
 	public List<Seller> FindByDepartment(Department Department) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
